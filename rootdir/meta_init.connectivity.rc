@@ -13,11 +13,6 @@ on post-fs-data
     mkdir /data/misc/gps 0770 gps system
     chown gps system /data/mpe_mnl
     chmod 0775 /vendor/xbin/MPED
-
-# GPS EMI
-    chmod 666 /dev/gps_emi
-    chown gps gps /dev/gps_emi
-
 #
 # Connectivity related device nodes & configuration (end)
 #
@@ -39,11 +34,11 @@ service wmt_launcher /vendor/bin/wmt_launcher -p /vendor/firmware/
     group system
 
 # GPS
-#service mnld /vendor/bin/mnld
-#    class main
-#    user gps
-#    group gps inet misc sdcard_rw sdcard_r media_rw system radio
-#    socket mnld stream 660 gps system
+service mnld /vendor/bin/mnld
+    class main
+    user gps
+    group gps inet misc sdcard_rw sdcard_r media_rw system radio
+    socket mnld stream 660 gps system
 
 service MPED /vendor/bin/MPED
     class main

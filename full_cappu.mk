@@ -4,22 +4,22 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 
 # Inherit from hardware-specific part of the product configuration
-$(call inherit-product, device/vernee/apollo_x/device.mk)
+$(call inherit-product, device/xiaomi/cappu/device.mk)
 
 # Release name
-PRODUCT_RELEASE_NAME := apollo_x
+PRODUCT_RELEASE_NAME := Mi Pad 3
 
-PRODUCT_DEVICE := apollo_x
-PRODUCT_NAME := full_apollo_x
-PRODUCT_BRAND := Vernee
-PRODUCT_MODEL := Apollo X
-PRODUCT_MANUFACTURER := Vernee
+PRODUCT_DEVICE := cappu
+PRODUCT_NAME := full_cappu
+PRODUCT_BRAND := Xiaomi
+PRODUCT_MODEL := MI PAD 3
+PRODUCT_MANUFACTURER := Xiaomi
 PRODUCT_RESTRICT_VENDOR_FILES := false
 
 # Boot animation
-TARGET_SCREEN_HEIGHT      := 1920
-TARGET_SCREEN_WIDTH       := 1080
-TARGET_BOOTANIMATION_NAME := 1080
+TARGET_SCREEN_HEIGHT      := 2048
+TARGET_SCREEN_WIDTH       := 1536
+TARGET_BOOTANIMATION_NAME := 1536
 
 PRODUCT_DEFAULT_LANGUAGE := en
 PRODUCT_DEFAULT_REGION   := US

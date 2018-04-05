@@ -9,11 +9,8 @@ import init.aee.rc
 import init.trustonic.rc
 import meta_init.connectivity.rc
 import meta_init.project.rc
-import init.microtrust.rc
 #Make sure meta_init.modem.rc is the last rc file.
 import meta_init.modem.rc
-
-
 on early-init
     # Set init and its forked children's oom_adj.
     write /proc/1/oom_score_adj -1000
@@ -53,18 +50,6 @@ loglevel 5
     # Link /vendor to /system/vendor for devices without a vendor partition.
     symlink /system/vendor /vendor
 
-# Temp Backward compatibility
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/boot /dev/bootimg
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/recovery /dev/recovery
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/secro  /dev/sec_ro
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/kb /dev/kb
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/dkb /dev/dkb
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/seccfg /dev/seccfg
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/proinfo /dev/pro_info
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/nvram /dev/nvram
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/para /dev/misc
-    symlink /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/logo /dev/logo
-
     # Mount cgroup mount point for cpu accounting
     mount cgroup none /acct cpuacct
     mkdir /acct/uid
@@ -92,7 +77,7 @@ loglevel 5
     chown system package_info /config/sdcardfs
 
     mkdir /mnt/secure 0700 root root
-    mkdir /mnt/secure/asec  0700 root root
+    mkdir /mnt/secure/asec 0700 root root
     mkdir /mnt/asec 0755 root system
     mkdir /mnt/obb 0755 root system
     mkdir /mnt/media_rw 0750 root media_rw
@@ -137,10 +122,10 @@ loglevel 5
 #INTERNAL_START
     mkdir /protect_f 0771 system system
     mkdir /protect_s 0771 system system
-    symlink /sdcard /mnt/sdcard
+    #create mountpoint for persist partition
+    mkdir /persist 0771 system system
     #Create nvdata mount point
     mkdir /nvdata 0771 system system
-    mkdir /nvcfg 0771 system system
 
     #Create CIP mount point
     mkdir /custom
@@ -163,6 +148,7 @@ on load_persist_props_action
     load_persist_props
     start logd
     start logd-reinit
+
 
 # Mount filesystems and start core system services.
 on late-init
@@ -191,7 +177,41 @@ on fs
     write /sys/class/android_usb/android0/f_ffs/aliases adb
 #INTERNAL_START
     write /proc/bootprof "INIT:Mount_START"
-    mount_all /fstab.mt6797 multi_init.rc
+    mkdir /dev/block/platform/mtk-msdc.0
+    symlink ../soc/11230000.mmc /dev/block/platform/mtk-msdc.0/11230000.MSDC0
+
+# Temp Backward compatibility
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/boot /dev/bootimg
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/recovery /dev/recovery
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/secro  /dev/sec_ro
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/kb /dev/kb
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/dkb /dev/dkb
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/seccfg /dev/seccfg
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/proinfo /dev/pro_info
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/nvram /dev/nvram
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/para /dev/misc
+    symlink /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/logo /dev/logo
+
+    mount_all /fstab.mt8173 multi_init.rc
+    #change partition permissions
+    exec /system/bin/chmod 0640 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/boot
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/boot
+    exec /system/bin/chmod 0640 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/recovery
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/recovery
+    exec /system/bin/chmod 0640 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/secro
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/secro
+    exec /system/bin/chmod 0660 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/seccfg
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/seccfg
+    exec /system/bin/chmod 0660 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/proinfo
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/proinfo
+    exec /system/bin/chmod 0660 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/otp
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/otp
+    exec /system/bin/chmod 0660 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/nvram
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/nvram
+    exec /system/bin/chmod 0660 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/para
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/para
+    exec /system/bin/chmod 0660 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/logo
+    exec /system/bin/chown root:system /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/logo
     write /proc/bootprof "INIT:Mount_END"
 #INTERNAL_END
 
@@ -215,7 +235,7 @@ on post-fs
     chmod 0770 /cache
     # We restorecon /cache in case the cache partition has been reset.
     restorecon_recursive /cache
-
+    
     #change permissions on kmsg & sysrq-trigger so bugreports can grab kthread stacks
     chown root system /proc/kmsg
     chmod 0440 /proc/kmsg
@@ -237,10 +257,11 @@ on post-fs
     chown system system /protect_s
     chmod 0770 /protect_s
 
-    chown system system /nvcfg
-    chmod 0771 /nvcfg
-    restorecon_recursive /nvcfg
+    chown system system /persist
+    chmod 0770 /persist
+
 #INTERNAL_END
+    
 
 on post-fs-data
     # We chown/chmod /data again so because mount is run as root + defaults
@@ -264,24 +285,8 @@ on post-fs-data
 
     # Avoid predictable entropy pool. Carry over entropy from previous boot.
     copy /data/system/entropy.dat /dev/urandom
-    
+
     # create basic filesystem structure
-    #mkdir /data/nvram 2770 root system
-	# We chown/chmod /nvdata again so because mount is run as root + defaults
-    chown root system /nvdata
-    chmod 0771 /nvdata
-    symlink /nvdata /data/nvram
-    mkdir /nvdata/media 0771 media audio
-
-    #Create cct mount point
-    mkdir /data/cct
-    chown root system /data/cct
-    chmod 0771 /data/cct
-
-    # Set SELinux security contexts on upgrade or policy update.
-    restorecon_recursive /nvdata
-
-
     mkdir /data/misc 01771 system misc
     mkdir /data/misc/bluedroid 02770 bluetooth net_bt_stack
     # Fix the access permissions and group ownership for 'bt_config.conf'
@@ -317,6 +322,12 @@ on post-fs-data
     mkdir /data/data 0771 system system
     mkdir /data/property 0700 root root
     mkdir /data/tombstones 0771 system system
+
+
+    #Create cct mount point
+    mkdir /data/cct
+    chown root system /data/cct
+    chmod 0771 /data/cct
 
     # create the lost+found directories, so as to enforce our permissions
     mkdir /data/lost+found 0770 root root
@@ -364,13 +375,28 @@ on post-fs-data
     # Check any timezone data in /data is newer than the copy in /system, delete if not.
     exec - system system -- /system/bin/tzdatacheck /system/usr/share/zoneinfo /data/misc/zoneinfo
 
-    # If there is no fs-post-data action in the init.<device>.rc file, you
-    # must uncomment this line, otherwise encrypted filesystems
-    # won't work.
-    # Set indication (checked by vold) that we have finished this action
-    # setprop vold.post_fs_data_done 1
-
 #INTERNAL_START
+    #autok
+    chown root system /sys/autok/debug
+    chown root system /sys/autok/param_count
+    chown root system /sys/autok/ready
+    chown root system /sys/autok/ss_corner
+    chown root system /sys/autok/suggest_vol
+    chown root system /sys/autok/stage1/3/DONE
+    chown root system /sys/autok/stage1/3/PARAMS
+    chown root system /sys/autok/stage1/3/VOLTAGE
+    chown root system /sys/autok/stage1/3/LOG
+    chown root system /sys/autok/stage2/3
+
+    # Set SELinux security contexts on upgrade or policy update.
+    # We chown/chmod /nvdata again so because mount is run as root + defaults
+    chown root system /nvdata
+    chmod 0771 /nvdata
+    symlink /nvdata /data/nvram
+    mkdir /nvdata/media 0771 media audio
+
+    # Set SELinux security contexts on upgrade or policy update.
+    restorecon_recursive /nvdata
     # WiFi
     mkdir /data/misc/wifi 0770 system wifi
     mkdir /data/misc/wifi/sockets 0770 system wifi
@@ -381,16 +407,50 @@ on post-fs-data
 
     # RTC
     mkdir /data/misc/rtc 0770 system system
-
+    
     # Android SEC related device nodes
     chmod 0660 /dev/sec
     chown root system /dev/sec
+	
+	# change key_provisioning 
+    mkdir /data/key_provisioning
+    chmod 0770 /data/key_provisioning
+    chown system system /data/key_provisioning
 
     #change partition permission
-    exec /vendor/etc/partition_permission.sh
+#preloader
+    chmod 0640 /dev/mtd/mtd0
+    chown root system /dev/mtd/mtd0
+#pro_info		
+    chmod 0660 /dev/mtd/mtd1
+    chown root system /dev/mtd/mtd1
+#nvram
+    chmod 0660 /dev/mtd/mtd2
+    chown root system /dev/mtd/mtd2
+#seccfg
+    chmod 0660 /dev/mtd/mtd4
+    chown root system /dev/mtd/mtd4
+#bootimg
+    chmod 0640 /dev/mtd/mtd6
+    chown root system /dev/mtd/mtd6
+#recovery
+    chmod 0640 /dev/mtd/mtd7
+    chown root system /dev/mtd/mtd7
+#sec_ro
+    chmod 0640 /dev/mtd/mtd8
+    chown root system /dev/mtd/mtd8
+#misc
+    chmod 0660 /dev/mtd/mtd9
+    chown root system /dev/mtd/mtd9
 
     chmod 0666 /dev/exm0
+
 #INTERNAL_END
+    # If there is no fs-post-data action in the init.<device>.rc file, you
+    # must uncomment this line, otherwise encrypted filesystems
+    # won't work.
+    # Set indication (checked by vold) that we have finished this action
+    setprop vold.post_fs_data_done 1
 
 on boot
 
@@ -479,8 +539,17 @@ service adbd /sbin/adbd --root_seclabel=u:r:su:s0
     disabled
     seclabel u:r:adbd:s0
 
+
 #INTERNAL_START
 service meta_tst /vendor/bin/meta_tst
+
+service kisd /vendor/bin/kisd
+
+# For WiFi High Speed calibration
+service autokd /vendor/bin/autokd
+    class core
+    user system
+    group system
 
 service nvram_daemon /vendor/bin/nvram_daemon
     class main
@@ -488,8 +557,6 @@ service nvram_daemon /vendor/bin/nvram_daemon
     group system
     oneshot
 
-service fuelgauged /system/bin/fuelgauged
-    class main
 
 service mobile_log_d /vendor/bin/mobile_log_d
     class main
